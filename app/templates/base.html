@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediGuide - 智能用药与症状辅助平台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .btn-logout:hover, .btn-logout:focus {
+            background-color: rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+            border-color: white !important;
+        }
+
+        :root {
+            --ink-900: #0f172a;
+            --ink-700: #1f2937;
+            --ink-500: #475569;
+            --teal-700: #0f766e;
+            --teal-500: #14b8a6;
+            --amber-500: #f59e0b;
+            --coral-500: #f97316;
+            --mist-50: #f8fafc;
+            --primary-gradient: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+            --secondary-gradient: linear-gradient(135deg, #f97316 0%, #f43f5e 100%);
+            --success-gradient: linear-gradient(135deg, #0ea5e9 0%, #22d3ee 100%);
+            --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            --shadow-lg: 0 20px 60px rgba(15, 23, 42, 0.12);
+            --shadow-xl: 0 30px 80px rgba(15, 23, 42, 0.18);
+        }
+        
+        body { 
+            font-family: 'Noto Sans SC', 'Outfit', 'Segoe UI', sans-serif; 
+            background:
+                radial-gradient(1000px 600px at 10% -10%, rgba(20, 184, 166, 0.14), transparent 60%),
+                radial-gradient(800px 500px at 110% 10%, rgba(249, 115, 22, 0.12), transparent 60%),
+                linear-gradient(180deg, #f8fafc 0%, #f4f6fb 60%, #ffffff 100%);
+            color: var(--ink-700);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .hero { 
+            background: var(--primary-gradient);
+            color: white; 
+            padding: 4rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="white" opacity="0.1"/></svg>');
+            animation: float 20s infinite linear;
+        }
+        
+        @keyframes float {
+            from { transform: translateY(0); }
+            to { transform: translateY(-100px); }
+        }
+        
+        .card { 
+            border: 1px solid rgba(148, 163, 184, 0.2); 
+            box-shadow: var(--shadow-lg);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 22px;
+            overflow: hidden;
+            background: white;
+        }
+        
+        .card:hover { 
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .chat-box { 
+            height: 400px; 
+            overflow-y: auto; 
+            background: white; 
+            border-radius: 20px; 
+            padding: 20px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .chat-message { 
+            margin-bottom: 12px; 
+            max-width: 80%; 
+            padding: 12px 18px; 
+            border-radius: 18px;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .chat-user { 
+            background: var(--primary-gradient);
+            color: white; 
+            align-self: flex-end; 
+            margin-left: auto;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .chat-ai { 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #2d3748; 
+            align-self: flex-start;
+        }
+        
+        .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 999px;
+            padding: 12px 32px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(20, 184, 166, 0.25);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(20, 184, 166, 0.35);
+        }
+        
+        .navbar {
+            background: linear-gradient(120deg, rgba(15, 118, 110, 0.95), rgba(20, 184, 166, 0.92)) !important;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.15);
+            backdrop-filter: blur(14px);
+        }
+
+        .navbar-brand {
+            font-family: 'Outfit', 'Noto Sans SC', sans-serif;
+            letter-spacing: 0.4px;
+        }
+        
+        .alert {
+            border-radius: 14px;
+            border: none;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+        }
+
+        .page-shell {
+            position: relative;
+            z-index: 1;
+        }
+
+        .page-shell::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image: radial-gradient(rgba(15, 118, 110, 0.06) 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.4;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="{{ url_for('main.index') }}">
+                <i class="bi bi-heart-pulse-fill me-2"></i>MediGuide
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.medicine_list') }}">药品库</a></li>
+                    {% if session.get('user_id') %}
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.my_medicines') }}">我的药箱</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.dashboard') }}">今日用药</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.ai_consult_page') }}">AI 问诊</a></li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if session.get('user_id') %}
+                    <li class="nav-item"><span class="nav-link text-white"><i class="bi bi-person-circle me-1"></i>{{ session.get('nickname', '用户') }}</span></li>
+                    <li class="nav-item"><a class="nav-link btn btn-outline-light ms-2 px-3 btn-logout" href="{{ url_for('main.logout') }}">退出</a></li>
+                    {% else %}
+                    <li class="nav-item"><a class="nav-link" href="#loginModal" data-bs-toggle="modal">登录</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main style="flex: 1;" class="page-shell">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4 mt-auto">
+        <div class="container text-center">
+            <p class="mb-1">&copy; 2026 MediGuide. All rights reserved.</p>
+            <p class="small text-muted mb-0">免责声明：本平台内容仅供科普参考，不能替代专业医疗建议。如有不适，请及时就医。</p>
+        </div>
+    </footer>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">欢迎使用 MediGuide</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body pt-2">
+                    <!-- Tab 切换 -->
+                    <ul class="nav nav-pills nav-fill mb-4" id="authTabs">
+                        <li class="nav-item">
+                            <button class="nav-link active" id="loginTab" type="button" onclick="switchTab('login')">
+                                <i class="bi bi-box-arrow-in-right me-1"></i>登录
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="registerTab" type="button" onclick="switchTab('register')">
+                                <i class="bi bi-person-plus me-1"></i>注册
+                            </button>
+                        </li>
+                    </ul>
+
+                    <form action="{{ url_for('main.login') }}" method="POST">
+                        <input type="hidden" name="action" id="authAction" value="login">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">用户名</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" name="nickname" class="form-control" required placeholder="请输入用户名">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">密码</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input type="password" name="password" class="form-control" required placeholder="请输入密码" minlength="4">
+                            </div>
+                        </div>
+                        <p id="authHint" class="text-muted small mb-3">已有账号？直接输入用户名和密码登录。</p>
+                        <button type="submit" id="authSubmitBtn" class="btn btn-primary w-100">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>登录
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function switchTab(mode) {
+        const loginTab = document.getElementById('loginTab');
+        const registerTab = document.getElementById('registerTab');
+        const action = document.getElementById('authAction');
+        const hint = document.getElementById('authHint');
+        const btn = document.getElementById('authSubmitBtn');
+        if (mode === 'register') {
+            registerTab.classList.add('active');
+            loginTab.classList.remove('active');
+            action.value = 'register';
+            hint.textContent = '填写用户名和密码完成注册，密码长度不少于4位。';
+            btn.innerHTML = '<i class="bi bi-person-check me-1"></i>注册';
+        } else {
+            loginTab.classList.add('active');
+            registerTab.classList.remove('active');
+            action.value = 'login';
+            hint.textContent = '已有账号？直接输入用户名和密码登录。';
+            btn.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>登录';
+        }
+    }
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="display-6 fw-bold mb-4">我的药箱</h2>
+    
+    {% if user_medicines %}
+    <div class="row row-cols-1 row-cols-md-3 g-3">
+        {% for um in user_medicines %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold text-primary">{{ um.medicine.name }}</h5>
+                    <p class="card-text text-muted small">添加时间: {{ um.added_at.strftime('%Y-%m-%d') }}</p>
+                    
+                    <h6 class="mt-3 text-secondary">当前计划:</h6>
+                    {% if um.schedules %}
+                        {% for sch in um.schedules %}
+                        <div class="alert alert-light border small py-2 mb-2">
+                            <strong>{{ sch.start_date }} 至 {{ sch.end_date }}</strong><br>
+                            时间: {{ sch.time_of_day }} | 剂量: {{ sch.dose }}
+                            {% if sch.status == 'active' %}
+                            <span class="badge bg-success float-end">进行中</span>
+                            {% else %}
+                            <span class="badge bg-secondary float-end">已结束</span>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted small fst-italic">暂无用药计划</p>
+                    {% endif %}
+
+                    <div class="d-flex gap-2 mt-2">
+                        <button class="btn btn-outline-primary flex-grow-1" data-bs-toggle="modal" data-bs-target="#scheduleModal{{ um.id }}">
+                            <i class="bi bi-calendar-plus me-1"></i> 设置新计划
+                        </button>
+                        <form action="{{ url_for('main.remove_from_cabinet', user_medicine_id=um.id) }}" method="POST"
+                              onsubmit="return confirm('确定要从药箱中移除【{{ um.medicine.name }}】吗？')">
+                            <button type="submit" class="btn btn-outline-danger" title="从药箱删除">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal for Adding Schedule -->
+            <div class="modal fade" id="scheduleModal{{ um.id }}" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">设置用药计划 - {{ um.medicine.name }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <form action="{{ url_for('main.add_schedule', user_medicine_id=um.id) }}" method="POST">
+                            <div class="modal-body">
+                                <div class="row mb-3">
+                                    <div class="col">
+                                        <label class="form-label">开始日期</label>
+                                        <input type="date" name="start_date" class="form-control" required>
+                                    </div>
+                                    <div class="col">
+                                        <label class="form-label">结束日期</label>
+                                        <input type="date" name="end_date" class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">服药时间 (逗号分隔，如 08:00, 12:00)</label>
+                                    <input type="text" name="times" class="form-control" placeholder="08:00, 18:00" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">单次剂量</label>
+                                    <input type="text" name="dose" class="form-control" placeholder="例如：1片 / 10ml" required>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                <button type="submit" class="btn btn-primary">保存计划</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <p class="lead text-muted">您的药箱是空的。</p>
+        <a href="{{ url_for('main.medicine_list') }}" class="btn btn-primary">去添加药品</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

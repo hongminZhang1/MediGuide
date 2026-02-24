@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row mb-4 align-items-center">
+        <div class="col-8">
+            <h2 class="display-6 fw-bold text-primary">👋 欢迎, {{ session.get('nickname', '用户') }}</h2>
+            <p class="text-muted small">今日: {{ today }} | 每日按时服药，健康常伴。</p>
+        </div>
+        <div class="col-4 text-end">
+            <a href="{{ url_for('main.medicine_list') }}" class="btn btn-outline-primary btn-sm">+ 添加药品</a>
+        </div>
+    </div>
+
+    <!-- Medicine List -->
+    {% if tasks %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for task in tasks %}
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0 {% if task.status == 'completed' %}bg-light opacity-75{% endif %}">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title fw-bold text-dark">{{ task.medicine_name }}</h5>
+                        {% if task.status == 'completed' %}
+                        <span class="badge bg-success rounded-pill">完成</span>
+                        {% else %}
+                        <span class="badge bg-warning text-dark rounded-pill">待服</span>
+                        {% endif %}
+                    </div>
+                    
+                    <ul class="list-unstyled small text-muted mb-3">
+                        <li class="mb-1"><i class="bi bi-capsule"></i> 剂量: {{ task.dose }}</li>
+                        <li class="mb-1"><i class="bi bi-clock"></i> 时间: {{ task.times | join(', ') }}</li>
+                        <li><i class="bi bi-progress"></i> 进度: {{ task.taken_count }} / {{ task.total_count }} 次</li>
+                    </ul>
+
+                    {% if task.status != 'completed' %}
+                    <button class="btn btn-primary w-100 btn-sm mark-taken" data-id="{{ task.schedule_id }}">
+                        标记今日已服用
+                    </button>
+                    {% else %}
+                    <button class="btn btn-secondary w-100 btn-sm" disabled>今日已完成</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="display-1 text-muted opacity-25 mb-3">📭</div>
+        <p class="lead text-muted">今日没有需要服用的药品。</p>
+        <a href="{{ url_for('main.medicine_list') }}" class="btn btn-primary mt-3">去添加一些药品?</a>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelectorAll('.mark-taken').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+        try {
+            const res = await fetch(`/schedule/mark_taken/${id}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'}
+            });
+            if (res.ok) {
+                location.reload();
+            } else {
+                alert('操作失败，请重试');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('网络错误');
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,459 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+        position: relative;
+        overflow: hidden;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        padding: 60px 0;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+        border-radius: 50%;
+        top: -200px;
+        right: -100px;
+        animation: float-bubble 8s ease-in-out infinite;
+    }
+    
+    .hero-section::after {
+        content: '';
+        position: absolute;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        bottom: -150px;
+        left: -50px;
+        animation: float-bubble 6s ease-in-out infinite reverse;
+    }
+    
+    @keyframes float-bubble {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-30px) scale(1.05); }
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .hero-title {
+        font-size: 3.8rem;
+        font-weight: 800;
+        color: white;
+        line-height: 1.2;
+        margin-bottom: 1.5rem;
+        text-shadow: 0 4px 30px rgba(0,0,0,0.2);
+        animation: fadeInUp 0.8s ease-out;
+    }
+    
+    .hero-subtitle {
+        font-size: 1.35rem;
+        color: rgba(255,255,255,0.95);
+        margin-bottom: 2.5rem;
+        font-weight: 400;
+        line-height: 1.6;
+        animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .hero-buttons {
+        animation: fadeInUp 0.8s ease-out 0.4s both;
+    }
+    
+    .btn-hero-primary {
+        background: white;
+        color: #0f766e;
+        border: none;
+        padding: 14px 36px;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+        margin: 0 8px;
+    }
+    
+    .btn-hero-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 50px rgba(0,0,0,0.3);
+        color: #0f766e;
+    }
+    
+    .btn-hero-secondary {
+        background: transparent;
+        color: white;
+        border: 2px solid white;
+        padding: 12px 36px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        margin: 0 8px;
+    }
+    
+    .btn-hero-secondary:hover {
+        background: white;
+        color: #0f766e;
+        transform: translateY(-3px);
+    }
+    
+    /* 特色卡片 - 非对称布局 */
+    .features-section {
+        margin-top: -80px;
+        position: relative;
+        z-index: 3;
+        padding: 0 20px 100px;
+    }
+    
+    .feature-card {
+        background: white;
+        border-radius: 20px;
+        padding: 24px 28px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        border: none;
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
+    
+    /* Hero section 中的卡片样式优化 */
+    .hero-section .feature-card {
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(10px);
+        padding: 28px 30px;
+    }
+    
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, #0f766e, #14b8a6);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .feature-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 30px 80px rgba(0,0,0,0.15);
+    }
+    
+    .feature-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.75rem;
+        margin-bottom: 16px;
+        position: relative;
+    }
+    
+    /* Hero section 中的图标样式优化 */
+    .hero-section .feature-icon {
+        width: 56px;
+        height: 56px;
+        font-size: 1.6rem;
+        margin-bottom: 14px;
+    }
+    
+    .feature-card-1 .feature-icon {
+        background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+        box-shadow: 0 10px 30px rgba(20, 184, 166, 0.4);
+    }
+    
+    .feature-card-2 .feature-icon {
+        background: linear-gradient(135deg, #f97316 0%, #f43f5e 100%);
+        box-shadow: 0 10px 30px rgba(244, 63, 94, 0.35);
+    }
+    
+    .feature-card-3 .feature-icon {
+        background: linear-gradient(135deg, #22d3ee 0%, #0ea5e9 100%);
+        box-shadow: 0 10px 30px rgba(14, 165, 233, 0.35);
+    }
+    
+    .feature-card-4 .feature-icon {
+        background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+        box-shadow: 0 10px 30px rgba(245, 158, 11, 0.35);
+    }
+    
+    /* 统计数据卡片 */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 16px;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 12px 6px;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e9ecf1 100%);
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    }
+    
+    .hero-section .stat-item {
+        padding: 12px 5px;
+    }
+    
+    .stat-number {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 4px;
+        display: block;
+    }
+    
+    .hero-section .stat-number {
+        font-size: 1.4rem;
+    }
+    
+    .stat-label {
+        color: #4a5568;
+        font-size: 0.7rem;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+    
+    .hero-section .stat-label {
+        font-size: 0.68rem;
+    }
+    
+    .feature-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 12px;
+    }
+    
+    /* Hero section 中的标题样式优化 */
+    .hero-section .feature-title {
+        font-size: 1.15rem;
+        margin-bottom: 10px;
+    }
+    
+    .feature-description {
+        color: #718096;
+        font-size: 0.9rem;
+        line-height: 1.7;
+        margin-bottom: 16px;
+    }
+    
+    /* Hero section 中的描述样式优化 */
+    .hero-section .feature-description {
+        font-size: 0.88rem;
+        line-height: 1.6;
+        margin-bottom: 12px;
+    }
+    
+    .feature-link {
+        color: #0f766e;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: gap 0.3s ease;
+    }
+    
+    .feature-link:hover {
+        gap: 12px;
+    }
+    
+    /* 响应式布局优化 */
+    @media (max-width: 991px) {
+        .hero-section {
+            min-height: auto;
+            padding: 50px 0;
+        }
+        
+        .hero-title {
+            font-size: 2.8rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.15rem;
+        }
+        
+        .hero-section .feature-card {
+            margin-top: 20px;
+        }
+    }
+    
+    @media (max-width: 576px) {
+        .hero-title {
+            font-size: 2.2rem;
+        }
+        
+        .hero-subtitle {
+            font-size: 1rem;
+        }
+        
+        .btn-hero-primary, .btn-hero-secondary {
+            display: block;
+            width: 100%;
+            margin: 8px 0;
+        }
+        
+        .hero-section .feature-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center g-2">
+            <div class="col-lg-6 hero-content">
+                <h1 class="hero-title">
+                    你的健康，<br>由你掌控
+                </h1>
+                <p class="hero-subtitle">
+                    用药提醒 · AI 智能问诊 · 药品百科<br>
+                    让专业医疗知识触手可及
+                </p>
+                <div class="hero-buttons">
+                    {% if session.get('user_id') %}
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-hero-primary">
+                        查看今日用药
+                    </a>
+                    <a href="{{ url_for('main.ai_consult_page') }}" class="btn btn-hero-secondary">
+                        AI 健康咨询
+                    </a>
+                    {% else %}
+                    <button type="button" class="btn btn-hero-primary" data-bs-toggle="modal" data-bs-target="#loginModal">
+                        开始使用
+                    </button>
+                    <a href="{{ url_for('main.medicine_list') }}" class="btn btn-hero-secondary">
+                        探索药品库
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- 右侧功能卡片 -->
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    <!-- AI 问诊 -->
+                    <div class="col-6">
+                        <div class="feature-card feature-card-1">
+                            <div class="feature-icon text-white">
+                                💬
+                            </div>
+                            <h3 class="feature-title">随时随地，AI 健康咨询</h3>
+                            <p class="feature-description">
+                                不舒服？不确定？问问 AI 医生吧！基于专业医学知识库，24小时在线为您答疑解惑
+                            </p>
+                            {% if session.get('user_id') %}
+                            <a href="{{ url_for('main.ai_consult_page') }}" class="feature-link">
+                                立即咨询 <i class="bi bi-arrow-right"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- 用药管理 -->
+                    <div class="col-6">
+                        <div class="feature-card feature-card-2">
+                            <div class="feature-icon text-white">
+                                💊
+                            </div>
+                            <h3 class="feature-title">从此不会忘记吃药</h3>
+                            <p class="feature-description">
+                                把常用药加入药箱，设置提醒时间，作为备忘录，每天准时提醒您该吃什么药
+                            </p>
+                            {% if session.get('user_id') %}
+                            <a href="{{ url_for('main.my_medicines') }}" class="feature-link">
+                                管理药箱 <i class="bi bi-arrow-right"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- 药品百科 -->
+                    <div class="col-6">
+                        <div class="feature-card feature-card-3">
+                            <div class="feature-icon text-white">
+                                📚
+                            </div>
+                            <h3 class="feature-title">看懂药品说明书</h3>
+                            <p class="feature-description">
+                                说明书密密麻麻看不懂？我们收录了常见药品的详细信息，用简单的语言告诉您怎么吃
+                            </p>
+                            <a href="{{ url_for('main.medicine_list') }}" class="feature-link">
+                                查看药品库 <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- 数据统计 -->
+                    <div class="col-6">
+                        <div class="feature-card feature-card-4">
+                            <div class="feature-icon text-white">
+                                📊
+                            </div>
+                            <h3 class="feature-title">平台数据一览</h3>
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <span class="stat-number">150+</span>
+                                    <div class="stat-label">常用药品收录</div>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number">24/7</span>
+                                    <div class="stat-label">AI 在线服务</div>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number">200+</span>
+                                    <div class="stat-label">症状知识库</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section (空占位符，用于保持页面锚点) -->
+<section id="features" style="padding: 0; margin: 0;"></section>
+{% endblock %}

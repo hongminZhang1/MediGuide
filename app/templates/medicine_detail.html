@@ -1,0 +1,401 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* ===== 页面背景 ===== */
+    .detail-page-bg {
+        background: linear-gradient(160deg, #f0f4ff 0%, #faf5ff 50%, #f0fdf4 100%);
+        min-height: 100vh;
+        padding: 40px 0 60px;
+    }
+
+    /* ===== 顶部导航栏 ===== */
+    .nav-bar-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 28px;
+        padding: 0 4px;
+    }
+
+    .btn-back-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 22px;
+        border-radius: 50px;
+        border: 2px solid #e2e8f0;
+        background: white;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.88rem;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+
+    .btn-back-pill:hover {
+        border-color: #667eea;
+        color: #667eea;
+        background: #f0f3ff;
+        transform: translateX(-3px);
+        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.18);
+    }
+
+    .btn-cabinet-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 22px;
+        border-radius: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        font-weight: 700;
+        font-size: 0.88rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 18px rgba(102, 126, 234, 0.38);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-cabinet-pill::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 60%);
+        pointer-events: none;
+    }
+
+    .btn-cabinet-pill:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(102, 126, 234, 0.52);
+        color: white;
+    }
+
+    /* ===== 主卡片 ===== */
+    .main-card {
+        border-radius: 28px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 20px 60px rgba(102, 126, 234, 0.12), 0 4px 20px rgba(0,0,0,0.08);
+        background: white;
+    }
+
+    /* ===== Header ===== */
+    .medicine-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #8b5cf6 100%);
+        padding: 50px 48px 40px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .medicine-header::before {
+        content: '';
+        position: absolute;
+        top: -60px; right: -60px;
+        width: 240px; height: 240px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+    }
+
+    .medicine-header::after {
+        content: '';
+        position: absolute;
+        bottom: -40px; left: -40px;
+        width: 180px; height: 180px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.05);
+    }
+
+    .header-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .medicine-name-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255,255,255,0.18);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255,255,255,0.3);
+        color: rgba(255,255,255,0.95);
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-size: 0.82rem;
+        font-weight: 500;
+        margin-bottom: 16px;
+    }
+
+    .medicine-title {
+        font-size: 2.4rem;
+        font-weight: 900;
+        letter-spacing: -0.03em;
+        color: white;
+        text-shadow: 0 4px 24px rgba(0,0,0,0.2);
+        margin-bottom: 10px;
+        line-height: 1.2;
+    }
+
+    .medicine-generic {
+        font-size: 1rem;
+        color: rgba(255,255,255,0.82);
+        font-weight: 400;
+    }
+
+    /* ===== 内容区 ===== */
+    .card-body-custom {
+        padding: 40px 48px 44px;
+    }
+
+    /* ===== 分区标题 ===== */
+    .section-heading {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 0.95rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 14px;
+    }
+
+    .section-heading .dot {
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+    }
+
+    /* ===== 适应症块 ===== */
+    .block-indications {
+        background: linear-gradient(135deg, #eef2ff 0%, #e8e3ff 100%);
+        border-radius: 20px;
+        padding: 24px 28px;
+        border-left: 5px solid #667eea;
+        margin-bottom: 28px;
+    }
+
+    .block-indications .section-heading { color: #4f46e5; }
+    .block-indications .dot { background: #667eea; }
+    .block-indications p { color: #3730a3; font-size: 0.94rem; line-height: 1.75; margin: 0; }
+
+    /* ===== 用法用量块 ===== */
+    .block-dosage {
+        background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+        border-radius: 20px;
+        padding: 24px 28px;
+        border-left: 5px solid #06b6d4;
+        margin-bottom: 28px;
+        display: flex;
+        align-items: flex-start;
+        gap: 18px;
+    }
+
+    .block-dosage .dosage-icon {
+        width: 48px; height: 48px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #06b6d4, #0ea5e9);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 22px; color: white;
+        flex-shrink: 0;
+        box-shadow: 0 6px 16px rgba(6, 182, 212, 0.35);
+    }
+
+    .block-dosage .section-heading { color: #0e7490; }
+    .block-dosage .dot { background: #06b6d4; }
+    .block-dosage p { color: #164e63; font-size: 0.94rem; line-height: 1.75; margin: 0; font-weight: 500; }
+
+    /* ===== 禁忌 & 副作用 双列 ===== */
+    .twin-cards { margin-bottom: 28px; }
+
+    .block-contraindications {
+        border-radius: 20px;
+        padding: 24px 24px 20px;
+        background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+        border: 1.5px solid #fecaca;
+        height: 100%;
+    }
+
+    .block-side-effects {
+        border-radius: 20px;
+        padding: 24px 24px 20px;
+        background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+        border: 1.5px solid #fde68a;
+        height: 100%;
+    }
+
+    .block-icon {
+        width: 44px; height: 44px;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; color: white;
+        margin-bottom: 14px;
+        box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+
+    .icon-red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .icon-amber { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+    .block-contraindications h6 { color: #b91c1c; font-weight: 700; font-size: 0.92rem; margin-bottom: 8px; }
+    .block-contraindications p { color: #7f1d1d; font-size: 0.88rem; line-height: 1.65; margin: 0; }
+
+    .block-side-effects h6 { color: #b45309; font-weight: 700; font-size: 0.92rem; margin-bottom: 8px; }
+    .block-side-effects p { color: #78350f; font-size: 0.88rem; line-height: 1.65; margin: 0; }
+
+    /* ===== 注意事项 ===== */
+    .block-precautions {
+        border-radius: 20px;
+        padding: 22px 28px;
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border-left: 5px solid #22c55e;
+        margin-bottom: 36px;
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .precautions-icon {
+        width: 44px; height: 44px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px; color: white;
+        flex-shrink: 0;
+        box-shadow: 0 6px 16px rgba(34, 197, 94, 0.3);
+    }
+
+    .block-precautions h6 { color: #15803d; font-weight: 700; font-size: 0.92rem; margin: 0 0 6px; }
+    .block-precautions p { color: #14532d; font-size: 0.88rem; line-height: 1.65; margin: 0; }
+
+    @media (max-width: 576px) {
+        .medicine-header { padding: 36px 28px 32px; }
+        .card-body-custom { padding: 28px 24px 32px; }
+        .medicine-title { font-size: 1.8rem; }
+        .nav-bar-row { flex-wrap: wrap; gap: 10px; }
+        .btn-cabinet-pill { font-size: 0.82rem; padding: 8px 16px; }
+    }
+</style>
+
+<div class="detail-page-bg">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-xl-9 col-lg-10">
+
+            <!-- 顶部导航行 -->
+            <div class="nav-bar-row">
+                <a href="{{ url_for('main.medicine_list') }}" class="btn-back-pill">
+                    <i class="bi bi-arrow-left"></i> 返回药品库
+                </a>
+                <form action="{{ url_for('main.add_to_cabinet', medicine_id=medicine.id) }}" method="POST" style="margin:0;"
+                    {% if not session.user_id %}id="form-add-cabinet"{% endif %}>
+                    <button type="submit" class="btn-cabinet-pill"
+                        {% if not session.user_id %}onclick="showLoginAlert(event)"{% endif %}>
+                        <i class="bi bi-heart-fill"></i> 加入药箱
+                    </button>
+                </form>
+            </div>
+
+            {% if not session.user_id %}
+            <!-- 未登录警告提示 -->
+            <div id="login-alert" style="display:none; margin-bottom: 16px; padding: 14px 20px; background: linear-gradient(135deg,#fee2e2,#fecaca); border: 1.5px solid #f87171; border-radius: 14px; color: #991b1b; font-size: 0.9rem; font-weight: 600; display: none; align-items: center; gap: 10px; box-shadow: 0 4px 14px rgba(239,68,68,0.18);">
+                <i class="bi bi-exclamation-circle-fill" style="font-size:1.1rem; color:#dc2626;"></i>
+                <span>请先<a href="{{ url_for('main.index') }}" style="color:#b91c1c; text-decoration:underline; margin:0 4px;">登录</a>后再将药品加入药箱。</span>
+            </div>
+            <script>
+            function showLoginAlert(e) {
+                e.preventDefault();
+                var el = document.getElementById('login-alert');
+                el.style.display = 'flex';
+                el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                setTimeout(function(){ el.style.display = 'none'; }, 4000);
+            }
+            </script>
+            {% endif %}
+
+            <!-- 主卡片 -->
+            <div class="main-card">
+
+                <!-- Header -->
+                <div class="medicine-header">
+                    <div class="header-content">
+                        <div class="medicine-name-label">
+                            <i class="bi bi-shield-check"></i> 已审核收录
+                        </div>
+                        <h1 class="medicine-title">{{ medicine.name }}</h1>
+                        {% if medicine.generic_name %}
+                        <p class="medicine-generic">通用名：{{ medicine.generic_name }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- 内容区 -->
+                <div class="card-body-custom">
+
+                    <!-- 适应症 -->
+                    <div class="block-indications">
+                        <div class="section-heading">
+                            <span class="dot"></span>
+                            <i class="bi bi-bookmark-star-fill"></i> 适应症
+                        </div>
+                        <p>{{ medicine.indications }}</p>
+                    </div>
+
+                    <!-- 用法用量 -->
+                    <div class="block-dosage">
+                        <div class="dosage-icon">
+                            <i class="bi bi-eyedropper"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="section-heading">
+                                <span class="dot"></span> 用法用量
+                            </div>
+                            <p>{{ medicine.dosage }}</p>
+                        </div>
+                    </div>
+
+                    <!-- 禁忌 & 副作用 -->
+                    <div class="row g-3 twin-cards">
+                        <div class="col-md-6">
+                            <div class="block-contraindications">
+                                <div class="block-icon icon-red">
+                                    <i class="bi bi-shield-fill-x"></i>
+                                </div>
+                                <h6><i class="bi bi-x-circle-fill me-1"></i> 禁忌症</h6>
+                                <p>{{ medicine.contraindications }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="block-side-effects">
+                                <div class="block-icon icon-amber">
+                                    <i class="bi bi-exclamation-triangle-fill"></i>
+                                </div>
+                                <h6><i class="bi bi-exclamation-circle-fill me-1"></i> 副作用</h6>
+                                <p>{{ medicine.side_effects }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 注意事项 -->
+                    <div class="block-precautions">
+                        <div class="precautions-icon">
+                            <i class="bi bi-info-circle-fill"></i>
+                        </div>
+                        <div>
+                            <h6>注意事项</h6>
+                            <p>{{ medicine.precautions }}</p>
+                        </div>
+                    </div>
+
+
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}
