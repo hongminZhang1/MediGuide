@@ -20,7 +20,7 @@
     }
     
     .chat-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #3b82f6 100%);
         color: white;
         padding: 20px 28px;
         border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -74,9 +74,10 @@
     }
     
     .message.user .message-bubble {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
         color: white;
         border-bottom-right-radius: 4px;
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
     }
     
     .message.assistant .message-bubble {
@@ -92,11 +93,11 @@
         margin-bottom: 12px;
         border-radius: 10px;
         overflow: hidden;
-        border: 1px solid #e0e7ff;
+        border: 1px solid #bfdbfe;
     }
     
     .reasoning-header {
-        background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
         padding: 8px 14px;
         cursor: pointer;
         display: flex;
@@ -104,12 +105,12 @@
         justify-content: space-between;
         font-size: 0.8rem;
         font-weight: 600;
-        color: #4c1d95;
+        color: #1e3a8a;
         transition: all 0.3s ease;
     }
     
     .reasoning-header:hover {
-        background: linear-gradient(135deg, #c7d2fe 0%, #a5b4fc 100%);
+        background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
     }
     
     .reasoning-header .icon {
@@ -199,7 +200,7 @@
     
     .model-selector select:focus {
         outline: none;
-        border-color: #667eea;
+        border-color: #3b82f6;
     }
     
     #user-input {
@@ -218,7 +219,8 @@
     
     #user-input:focus {
         outline: none;
-        border-color: #667eea;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
     }
     
     #user-input:disabled {
@@ -227,10 +229,10 @@
     }
     
     #send-btn {
-        width: 40px;
-        height: 40px;
+        width: 42px;
+        height: 42px;
         padding: 0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
         color: white;
         border: none;
         border-radius: 50%;
@@ -241,12 +243,12 @@
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.32);
     }
     
     #send-btn:hover:not(:disabled) {
         transform: translateY(-2px) scale(1.08);
-        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.5);
+        box-shadow: 0 8px 20px rgba(37, 99, 235, 0.48);
     }
     
     #send-btn:active:not(:disabled) {
@@ -378,22 +380,22 @@
         gap: 5px;
         padding: 7px 14px;
         background: white;
-        border: 1.5px solid #e0e7ff;
+        border: 1.5px solid #bfdbfe;
         border-radius: 20px;
         font-size: 0.82rem;
-        color: #4c51bf;
+        color: #1d4ed8;
         cursor: pointer;
         transition: all 0.2s ease;
         white-space: nowrap;
-        box-shadow: 0 2px 6px rgba(102,126,234,0.08);
+        box-shadow: 0 2px 6px rgba(37,99,235,0.08);
     }
 
     .quick-chip:hover {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%);
         color: white;
         border-color: transparent;
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(102,126,234,0.3);
+        box-shadow: 0 6px 16px rgba(37,99,235,0.28);
     }
 </style>
 

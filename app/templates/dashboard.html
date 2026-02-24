@@ -1,45 +1,209 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row mb-4 align-items-center">
-        <div class="col-8">
-            <h2 class="display-6 fw-bold text-primary">👋 欢迎, {{ session.get('nickname', '用户') }}</h2>
-            <p class="text-muted small">今日: {{ today }} | 每日按时服药，健康常伴。</p>
-        </div>
-        <div class="col-4 text-end">
-            <a href="{{ url_for('main.medicine_list') }}" class="btn btn-outline-primary btn-sm">+ 添加药品</a>
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 55%, #3b82f6 100%);
+        padding: 48px 0 56px;
+        margin-bottom: -28px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(500px 250px at 5% 5%, rgba(255,255,255,0.14), transparent 60%),
+            radial-gradient(400px 220px at 95% 15%, rgba(255,255,255,0.09), transparent 60%);
+    }
+
+    .dashboard-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: white;
+        margin-bottom: 6px;
+        text-shadow: 0 2px 16px rgba(0,0,0,0.15);
+    }
+
+    .dashboard-subtitle {
+        color: rgba(255,255,255,0.78);
+        font-size: 0.92rem;
+    }
+
+    .task-card {
+        border-radius: 18px;
+        border: 1px solid rgba(148,163,184,0.2);
+        background: white;
+        box-shadow: 0 8px 24px rgba(15,23,42,0.08);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .task-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 40px rgba(37,99,235,0.12);
+    }
+
+    .task-card.completed {
+        opacity: 0.7;
+        background: #f8fafc;
+    }
+
+    .task-card-header {
+        padding: 18px 20px 14px;
+        border-bottom: 1px solid #f1f5f9;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .task-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin: 0;
+    }
+
+    .badge-done {
+        background: linear-gradient(135deg, #059669, #10b981);
+        color: white;
+        border-radius: 20px;
+        padding: 4px 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .badge-pending {
+        background: linear-gradient(135deg, #f59e0b, #fbbf24);
+        color: #78350f;
+        border-radius: 20px;
+        padding: 4px 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .task-card-body {
+        padding: 16px 20px 18px;
+    }
+
+    .task-meta {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 14px;
+    }
+
+    .task-meta li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.86rem;
+        color: #64748b;
+        padding: 4px 0;
+    }
+
+    .task-meta li i {
+        color: #3b82f6;
+        font-size: 0.95rem;
+        width: 16px;
+        text-align: center;
+    }
+
+    .btn-mark-taken {
+        width: 100%;
+        background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+        border: none;
+        color: white;
+        border-radius: 12px;
+        padding: 10px;
+        font-weight: 600;
+        font-size: 0.88rem;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 14px rgba(37,99,235,0.22);
+    }
+
+    .btn-mark-taken:hover {
+        background: linear-gradient(135deg, #1e40af, #2563eb);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(37,99,235,0.32);
+    }
+
+    .btn-mark-taken:disabled {
+        background: #e2e8f0;
+        color: #94a3b8;
+        box-shadow: none;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+    }
+
+    .empty-icon {
+        width: 90px;
+        height: 90px;
+        border-radius: 24px;
+        background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        margin: 0 auto 20px;
+        box-shadow: 0 8px 24px rgba(37,99,235,0.12);
+    }
+</style>
+
+<div class="dashboard-header">
+    <div class="container" style="position:relative;z-index:2;">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="dashboard-title">
+                    <i class="bi bi-calendar2-check me-2"></i>今日用药
+                </h1>
+                <p class="dashboard-subtitle mb-0">{{ today }} &nbsp;·&nbsp; 您好，{{ session.get('nickname', '用户') }} 👋</p>
+            </div>
+            <a href="{{ url_for('main.medicine_list') }}" class="btn btn-primary d-flex align-items-center gap-2"
+               style="background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.6);color:white;backdrop-filter:blur(4px);">
+                <i class="bi bi-plus-lg"></i> 添加药品
+            </a>
         </div>
     </div>
+</div>
 
-    <!-- Medicine List -->
+<div class="container py-5">
     {% if tasks %}
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for task in tasks %}
         <div class="col">
-            <div class="card h-100 shadow-sm border-0 {% if task.status == 'completed' %}bg-light opacity-75{% endif %}">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="card-title fw-bold text-dark">{{ task.medicine_name }}</h5>
-                        {% if task.status == 'completed' %}
-                        <span class="badge bg-success rounded-pill">完成</span>
-                        {% else %}
-                        <span class="badge bg-warning text-dark rounded-pill">待服</span>
-                        {% endif %}
-                    </div>
-                    
-                    <ul class="list-unstyled small text-muted mb-3">
-                        <li class="mb-1"><i class="bi bi-capsule"></i> 剂量: {{ task.dose }}</li>
-                        <li class="mb-1"><i class="bi bi-clock"></i> 时间: {{ task.times | join(', ') }}</li>
-                        <li><i class="bi bi-progress"></i> 进度: {{ task.taken_count }} / {{ task.total_count }} 次</li>
+            <div class="task-card {% if task.status == 'completed' %}completed{% endif %}">
+                <div class="task-card-header">
+                    <h5 class="task-name">{{ task.medicine_name }}</h5>
+                    {% if task.status == 'completed' %}
+                    <span class="badge-done"><i class="bi bi-check-lg me-1"></i>已完成</span>
+                    {% else %}
+                    <span class="badge-pending"><i class="bi bi-clock me-1"></i>待服用</span>
+                    {% endif %}
+                </div>
+                <div class="task-card-body">
+                    <ul class="task-meta">
+                        <li><i class="bi bi-capsule"></i> <span>剂量：{{ task.dose }}</span></li>
+                        <li><i class="bi bi-alarm"></i> <span>时间：{{ task.times | join(', ') }}</span></li>
+                        <li><i class="bi bi-bar-chart-steps"></i> <span>进度：{{ task.taken_count }} / {{ task.total_count }} 次</span></li>
                     </ul>
-
                     {% if task.status != 'completed' %}
-                    <button class="btn btn-primary w-100 btn-sm mark-taken" data-id="{{ task.schedule_id }}">
-                        标记今日已服用
+                    <button class="btn-mark-taken mark-taken" data-id="{{ task.schedule_id }}">
+                        <i class="bi bi-check2-circle me-1"></i> 标记今日已服用
                     </button>
                     {% else %}
-                    <button class="btn btn-secondary w-100 btn-sm" disabled>今日已完成</button>
+                    <button class="btn-mark-taken" disabled>
+                        <i class="bi bi-check-all me-1"></i> 今日已完成
+                    </button>
                     {% endif %}
                 </div>
             </div>
@@ -47,10 +211,13 @@
         {% endfor %}
     </div>
     {% else %}
-    <div class="text-center py-5">
-        <div class="display-1 text-muted opacity-25 mb-3">📭</div>
-        <p class="lead text-muted">今日没有需要服用的药品。</p>
-        <a href="{{ url_for('main.medicine_list') }}" class="btn btn-primary mt-3">去添加一些药品?</a>
+    <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <h4 class="fw-bold text-secondary mb-2">今日无用药计划</h4>
+        <p class="text-muted mb-4">将药品加入药箱并设置计划后，每日提醒将自动出现在这里。</p>
+        <a href="{{ url_for('main.medicine_list') }}" class="btn btn-primary px-4">
+            <i class="bi bi-plus-lg me-1"></i> 去添加药品
+        </a>
     </div>
     {% endif %}
 </div>
@@ -62,6 +229,8 @@
 document.querySelectorAll('.mark-taken').forEach(btn => {
     btn.addEventListener('click', async () => {
         const id = btn.dataset.id;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="bi bi-arrow-repeat me-1" style="animation:spin 1s linear infinite"></i> 更新中...';
         try {
             const res = await fetch(`/schedule/mark_taken/${id}`, {
                 method: 'POST',
@@ -71,12 +240,17 @@ document.querySelectorAll('.mark-taken').forEach(btn => {
                 location.reload();
             } else {
                 alert('操作失败，请重试');
+                btn.disabled = false;
             }
         } catch (e) {
             console.error(e);
             alert('网络错误');
+            btn.disabled = false;
         }
     });
 });
 </script>
+<style>
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
 {% endblock %}
