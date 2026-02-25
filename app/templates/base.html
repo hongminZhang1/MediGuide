@@ -223,14 +223,16 @@
             if (mode === 'register') {
                 actionInput.value = 'register';
                 submitBtn.textContent = '注册并登录';
-                submitBtn.classList.remove('btn-primary');
-                submitBtn.classList.add('btn-success');
+                // 保持按钮为蓝色 (btn-primary)，不切换为绿色 (btn-success)
+                // submitBtn.classList.remove('btn-primary');
+                // submitBtn.classList.add('btn-success');
                 hint.textContent = '注册即代表同意我们的服务条款和隐私政策';
             } else {
                 actionInput.value = 'login';
                 submitBtn.textContent = '立即登录';
-                submitBtn.classList.remove('btn-success');
+                // 恢复按钮为蓝色，虽然现在它本身就是，但为了逻辑完整性保留
                 submitBtn.classList.add('btn-primary');
+                // submitBtn.classList.remove('btn-success');
                 hint.textContent = '未注册用户将自动创建账号';
             }
         }

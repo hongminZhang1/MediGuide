@@ -72,8 +72,8 @@
                             <i class="bi bi-robot me-1 text-primary"></i>
                             想了解此药是否适合您的症状？或者与其他药物是否有冲突？
                         </p>
-                        <a href="{{ url_for('main.ai_consult_page') }}" class="btn btn-outline-primary w-100 rounded-pill">
-                            咨询 AI 助手
+                        <a href="{{ url_for('main.ai_consult_page', initial_query='请详细介绍一下' + medicine.name + '药品信息，包括它的主要功效、使用禁忌以及一般的服用建议。') }}" class="btn btn-outline-primary w-100 rounded-pill">
+                            咨询 AI 助手关于此药
                         </a>
                     </div>
                 </div>

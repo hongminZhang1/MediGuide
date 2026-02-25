@@ -195,3 +195,10 @@ h1, h2, h3, h4, h5, h6 {
         padding-right: 1.25rem;
     }
 }
+
+/* 模态框 Pills 样式调整 */
+.nav-pills .nav-link.active,
+.nav-pills .show > .nav-link {
+    background-color: var(--primary-light) !important;
+    color: var(--primary-color) !important;
+}

@@ -385,6 +385,9 @@
             sendMessage();
         }
     });
+    
+    // Click button to send
+    sendBtn.addEventListener('click', sendMessage);
 
     function askQuestion(text) {
         userInput.value = text;
@@ -392,36 +395,41 @@
         sendMessage();
     }
 
-    function appendMessage(role, content, reasoning = null) {
+    function appendMessage(role, content = '', reasoning = null) {
+        // Clear welcome message if present
+        const welcomeMsg = messagesContainer.querySelector('.text-center.py-5');
+        if (welcomeMsg) {
+            welcomeMsg.remove();
+        }
+
         const msgDiv = document.createElement('div');
-        msgDiv.className = message ;
+        msgDiv.className = `message ${role}`;
         
         let avatarIcon = role === 'user' ? '<i class="bi bi-person"></i>' : '<i class="bi bi-robot"></i>';
         
-        let contentHtml = '';
-        
+        // Build inner HTML structure
+        let innerHTML = `<div class="message-avatar">${avatarIcon}</div>`;
+        innerHTML += `<div class="message-content">`;
+
+        // Add reasoning block if exists
         if (reasoning) {
-            contentHtml += 
+            innerHTML += `
                 <div class="reasoning-box">
                     <div class="reasoning-header" onclick="this.nextElementSibling.classList.toggle('open')">
                         <span><i class="bi bi-lightbulb me-1"></i> 思考过程</span>
                         <i class="bi bi-chevron-down"></i>
                     </div>
-                    <div class="reasoning-body">
-                        
+                    <div class="reasoning-body open">
+                        ${marked.parse(reasoning)}
                     </div>
-                </div>
-            ;
+                </div>`;
         }
         
-        contentHtml += <div class="content-text"></div>;
+        // Add content
+        innerHTML += `<div class="content-text">${content ? marked.parse(content) : '<div class="typing-dots"><span></span><span></span><span></span></div>'}</div>`;
+        innerHTML += `</div>`; // Close message-content
 
-        msgDiv.innerHTML = 
-            <div class="message-avatar"></div>
-            <div class="message-content">
-                
-            </div>
-        ;
+        msgDiv.innerHTML = innerHTML;
         
         messagesContainer.appendChild(msgDiv);
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
@@ -431,45 +439,27 @@
 
     function updateMessage(msgElement, content, reasoning) {
         const contentDiv = msgElement.querySelector('.message-content');
+        if (!contentDiv) return;
+
         let html = '';
         
         if (reasoning) {
-            // Check if reasoning box exists, if not create it, else update it
-            let reasoningBody = contentDiv.querySelector('.reasoning-body');
-            if (!reasoningBody) {
-                // If it's a new reasoning block
-                html += 
-                    <div class="reasoning-box">
-                        <div class="reasoning-header" onclick="this.nextElementSibling.classList.toggle('open')">
-                            <span><i class="bi bi-lightbulb me-1"></i> 思考过程</span>
-                            <i class="bi bi-chevron-down"></i>
-                        </div>
-                        <div class="reasoning-body open">
-                            
-                        </div>
+            html += `
+                <div class="reasoning-box">
+                    <div class="reasoning-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                        <span><i class="bi bi-lightbulb me-1"></i> 思考过程</span>
+                        <i class="bi bi-chevron-down"></i>
                     </div>
-                ;
-            } else {
-                 // Keep existing structure, just update content
-                 reasoningBody.innerHTML = marked.parse(reasoning);
-                 // We need to re-construct the whole HTML to ensure order or just replace parts. 
-                 // Easier to rebuild for now.
-                 html += 
-                    <div class="reasoning-box">
-                        <div class="reasoning-header" onclick="this.nextElementSibling.classList.toggle('open')">
-                            <span><i class="bi bi-lightbulb me-1"></i> 思考过程</span>
-                            <i class="bi bi-chevron-down"></i>
-                        </div>
-                        <div class="reasoning-body open">
-                            
-                        </div>
+                    <div class="reasoning-body open">
+                        ${marked.parse(reasoning)}
                     </div>
-                ;
-            }
+                </div>`;
         }
         
-        html += <div class="content-text"></div>;
+        html += `<div class="content-text">${content ? marked.parse(content) : ''}</div>`;
         contentDiv.innerHTML = html;
+        
+        // Auto scroll
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
@@ -479,20 +469,22 @@
         const text = userInput.value.trim();
         if (!text) return;
 
-        // Clear welcome message if it's the first message
-        if (messagesContainer.querySelector('.text-center.py-5')) {
-            messagesContainer.innerHTML = '';
-        }
-
+        // Reset input immediately
         userInput.value = '';
-        userInput.style.height = 'auto';
+        userInput.style.height = 'auto'; // Reset height
+        
+        // Disable UI
         userInput.disabled = true;
         sendBtn.disabled = true;
 
+        // User message
         appendMessage('user', text);
         conversationHistory.push({ role: 'user', content: text });
 
+        // Assistant placeholder
         const assistantMsgDiv = appendMessage('assistant', null);
+        let fullContent = '';
+        let fullReasoning = '';
         
         try {
             const response = await fetch('/api/chat/deepseek', {
@@ -504,10 +496,12 @@
                 })
             });
 
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
-            let fullContent = '';
-            let fullReasoning = '';
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -517,18 +511,33 @@
                 const lines = chunk.split('\n');
                 
                 for (const line of lines) {
-                    if (line.startsWith('data: ')) {
+                    if (line.trim().startsWith('data: ')) {
+                        const dataStr = line.trim().slice(6);
+                        if (dataStr === '[DONE]') break;
+                        
                         try {
-                            const data = JSON.parse(line.slice(6));
-                             if (data.choices?.[0]?.delta?.reasoning_content) {
+                            const data = JSON.parse(dataStr);
+                            
+                            // Handle reasoning
+                            if (data.choices?.[0]?.delta?.reasoning_content) {
                                 fullReasoning += data.choices[0].delta.reasoning_content;
                             }
+                            
+                            // Handle content
                             if (data.choices?.[0]?.delta?.content) {
                                 fullContent += data.choices[0].delta.content;
                             }
+                            
+                            // Handle error inside stream
+                             if (data.error) {
+                                fullContent += `\n\n[System Error: ${data.error}]`;
+                            }
+
+                            // Update UI
                             updateMessage(assistantMsgDiv, fullContent, fullReasoning);
+                            
                         } catch (e) {
-                            // Ignore parse errors for incomplete chunks
+                            console.warn('Error parsing stream data:', e);
                         }
                     }
                 }
@@ -537,6 +546,7 @@
             conversationHistory.push({ role: 'assistant', content: fullContent });
 
         } catch (error) {
+            console.error('Chat error:', error);
             updateMessage(assistantMsgDiv, '抱歉，连接服务器失败，请稍后重试。');
         } finally {
             userInput.disabled = false;
@@ -544,6 +554,22 @@
             userInput.focus();
         }
     }
+
+    // Check for initial query from URL parameters
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialQuery = urlParams.get('initial_query');
+        
+        if (initialQuery) {
+            // Ensure model is set to default (deepseek-chat) implicitly or explicitly
+            modelSelect.value = 'deepseek-chat'; 
+            askQuestion(initialQuery);
+            
+            // Optionally, clear the query param from URL so refresh doesn't resend
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.replaceState({path: newUrl}, '', newUrl);
+        }
+    });
 </script>
 <!-- Include Marked.js for Markdown rendering -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
