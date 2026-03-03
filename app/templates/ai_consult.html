@@ -497,7 +497,13 @@
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                let errorText = '';
+                try {
+                    errorText = await response.text();
+                } catch (_) {
+                    errorText = '';
+                }
+                throw new Error(`HTTP error! status: ${response.status}${errorText ? `, body: ${errorText}` : ''}`);
             }
 
             const reader = response.body.getReader();

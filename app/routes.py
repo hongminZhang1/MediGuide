@@ -260,6 +260,7 @@ def deepseek_chat_stream():
         messages = data.get('messages', [])
         model = data.get('model', 'deepseek-chat')
         temperature = data.get('temperature', 1.3)
+        is_vercel = bool(os.environ.get('VERCEL'))
         
         print(f"[DEBUG] Model: {model}")
         print(f"[DEBUG] Messages count: {len(messages)}")
@@ -305,6 +306,43 @@ def deepseek_chat_stream():
         # 初始化 OpenAI 客户端
         print(f"[DEBUG] Initializing OpenAI client with base_url: {base_url}")
         client = OpenAI(api_key=api_key, base_url=base_url)
+
+        # Vercel Python Serverless 对长连接流式 SSE 兼容性有限，回退为一次性响应（仍保持 SSE 格式）
+        if is_vercel:
+            print("[DEBUG] Vercel environment detected, using non-stream fallback")
+            try:
+                completion = client.chat.completions.create(
+                    model=model,
+                    messages=final_messages,
+                    stream=False,
+                    temperature=temperature,
+                    max_tokens=4000
+                )
+
+                content = ""
+                if completion and completion.choices and completion.choices[0].message:
+                    content = completion.choices[0].message.content or ""
+
+                sse_payload = {
+                    'choices': [{
+                        'delta': {
+                            'content': content
+                        }
+                    }]
+                }
+                sse_text = f"data: {json.dumps(sse_payload, ensure_ascii=False)}\n\n" + "data: [DONE]\n\n"
+
+                return Response(
+                    sse_text,
+                    mimetype='text/event-stream',
+                    headers={
+                        'Cache-Control': 'no-cache',
+                        'X-Accel-Buffering': 'no'
+                    }
+                )
+            except Exception as e:
+                print(f"[ERROR] Vercel fallback error: {type(e).__name__}: {str(e)}")
+                return jsonify({'error': f'{type(e).__name__}: {str(e)}'}), 500
         
         def generate():
             """生成器函数，用于流式响应"""
