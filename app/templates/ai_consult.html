@@ -463,6 +463,49 @@
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
+    // 打字机动画：用于 Vercel 等一次性返回全部内容的场景
+    function typewriterEffect(msgElement, content, reasoning) {
+        return new Promise(resolve => {
+            const contentDiv = msgElement.querySelector('.message-content');
+            if (!contentDiv) { resolve(); return; }
+
+            let html = '';
+            if (reasoning) {
+                html += `
+                    <div class="reasoning-box">
+                        <div class="reasoning-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                            <span><i class="bi bi-lightbulb me-1"></i> 思考过程</span>
+                            <i class="bi bi-chevron-down"></i>
+                        </div>
+                        <div class="reasoning-body open">
+                            ${marked.parse(reasoning)}
+                        </div>
+                    </div>`;
+            }
+            contentDiv.innerHTML = html + `<div class="content-text"></div>`;
+            const textEl = contentDiv.querySelector('.content-text');
+
+            let i = 0;
+            const CHARS_PER_TICK = 5;  // 每次渲染字符数，调大则速度加快
+            const DELAY = 16;          // 约 60fps
+
+            function step() {
+                if (i >= content.length) {
+                    // 完成后用 markdown 最终渲染
+                    textEl.innerHTML = marked.parse(content);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    resolve();
+                    return;
+                }
+                i = Math.min(i + CHARS_PER_TICK, content.length);
+                textEl.textContent = content.slice(0, i);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                setTimeout(step, DELAY);
+            }
+            step();
+        });
+    }
+
     let conversationHistory = [];
 
     async function sendMessage() {
@@ -485,6 +528,7 @@
         const assistantMsgDiv = appendMessage('assistant', null);
         let fullContent = '';
         let fullReasoning = '';
+        let contentChunkCount = 0;  // 记录 content 块数量，用于区分真流式 vs 一次性响应
         
         try {
             const response = await fetch('/api/chat/deepseek', {
@@ -532,6 +576,7 @@
                             // Handle content
                             if (data.choices?.[0]?.delta?.content) {
                                 fullContent += data.choices[0].delta.content;
+                                contentChunkCount++;
                             }
                             
                             // Handle error inside stream
@@ -539,8 +584,10 @@
                                 fullContent += `\n\n[System Error: ${data.error}]`;
                             }
 
-                            // Update UI
-                            updateMessage(assistantMsgDiv, fullContent, fullReasoning);
+                            // 真流式：第 2 块起实时渲染；reasoning 有内容也实时渲染
+                            if (contentChunkCount >= 2 || fullReasoning) {
+                                updateMessage(assistantMsgDiv, fullContent, fullReasoning);
+                            }
                             
                         } catch (e) {
                             console.warn('Error parsing stream data:', e);
@@ -549,6 +596,15 @@
                 }
             }
             
+            // 流式结束后处理渲染
+            if (contentChunkCount === 1 && fullContent) {
+                // 一次性返回（Vercel 等环境）：打字机动画
+                await typewriterEffect(assistantMsgDiv, fullContent, fullReasoning);
+            } else {
+                // 真流式已实时渲染，或无内容：最终刷新一次确保 markdown 正确
+                updateMessage(assistantMsgDiv, fullContent || '（无回复内容）', fullReasoning);
+            }
+
             conversationHistory.push({ role: 'assistant', content: fullContent });
 
         } catch (error) {
