@@ -52,14 +52,12 @@ class Schedule(db.Model):
     dose = db.Column(db.String(50), nullable=False)
     status = db.Column(db.String(20), default='active')  # active, completed
     
-    # New field to track daily intake? Or create a log table?
-    # For simplicity, we'll store a JSON string or comma separated dates for "completed_today" which resets if date changes?
-    # Or a separate table for `IntakeLog`.
-    # The README says "mark as taken... optional history". Let's add a simple log table for robustness.
+    # Cascade delete intake logs when a schedule is deleted
+    intake_logs = db.relationship('IntakeLog', backref='schedule', lazy=True, cascade='all, delete-orphan')
 
 class IntakeLog(db.Model):
     __tablename__ = 'intake_logs'
     id = db.Column(db.Integer, primary_key=True)
-    schedule_id = db.Column(db.Integer, db.ForeignKey('schedules.id'), nullable=False)
+    schedule_id = db.Column(db.Integer, db.ForeignKey('schedules.id', ondelete='CASCADE'), nullable=False)
     taken_at = db.Column(db.DateTime, default=datetime.utcnow)
     date_str = db.Column(db.String(10), nullable=False) # "2023-10-27" to easily query "today"
