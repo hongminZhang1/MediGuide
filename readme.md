@@ -126,3 +126,7 @@
   - 取相似度最高的索引，若最高相似度 > 0.2，返回对应知识条目；否则返回默认消息。
 - 注意：需要安装scikit-learn、pandas。
 
+## 8. 开源与部署说明
+- 项目完全开源，源代码托管至github，访问链接为[https://github.com/hongminZhang1/MediGuide](https://github.com/hongminZhang1/MediGuide)
+- 项目已部署，可输入[https://guide.homgzha.cc/](https://guide.homgzha.cc/) 访问
+
